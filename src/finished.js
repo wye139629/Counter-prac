@@ -1,8 +1,40 @@
 import './App.css';
 import ReactDOM from 'react-dom';
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import Counter from './components/Counter'
 import Timer from './components/Timer'
+const states = []
+let calls = - 1
+
+const useState = (defaultValue) => {
+  const callId = ++calls
+
+  if(states[callId]){
+    return states[callId]
+  }
+
+  const setValue = (newValue) => {
+    let nextValue
+    typeof newValue === 'function' ?  nextValue = newValue(states[callId][0]) : nextValue = newValue
+    states[callId][0] = nextValue
+    callRender()
+  }
+
+  const stateArray = [defaultValue, setValue]
+  states[callId] = stateArray
+  return stateArray
+}
+// const useLocalStorage = (key, value) => {
+//   const [state, setState] = useState(()=>{
+//     return window.localStorage.getItem(key) || value
+//   })
+
+//   useEffect(() => {
+//     window.localStorage.setItem(key, state)
+//   }, [state, key])
+
+//   return [state, setState]
+// }
 
 const App = () => {
   const [isStart, setIsStart] = useState(false)
@@ -38,12 +70,16 @@ const App = () => {
   )
 };
 
+function callRender(){
+  calls = -1
   ReactDOM.render(
     <React.StrictMode>
       <App />
     </React.StrictMode>,
     document.getElementById('root')
   );
+}
+callRender()
 
 
 export default App;
